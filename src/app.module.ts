@@ -5,6 +5,7 @@ import { AppService } from "./app.service"
 import { AuthModule } from "./auth/auth.module"
 import { mongoURI } from "./configs/database"
 import { UserModule } from "./user/user.module"
+import { MeetingModule } from './meeting/meeting.module';
 
 const mongoseOpts = {
   useCreateIndex: true,
@@ -17,6 +18,7 @@ const mongoseOpts = {
     MongooseModule.forRoot(mongoURI, mongoseOpts),
     AuthModule,
     UserModule,
+    MeetingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

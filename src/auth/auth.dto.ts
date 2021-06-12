@@ -25,7 +25,7 @@ export class SignupDto {
   @IsString()
   @MaxLength(30)
   @MinLength(5)
-  password: string
+  password?: string
 }
 
 export class SigninDto {

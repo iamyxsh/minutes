@@ -42,4 +42,37 @@ export class AuthUtils {
       throw new BadRequestException("invalid credentials")
     }
   }
+
+  extractToken(req: Request): boolean {
+    const authHeader = req.headers["authorization"]
+
+    if (!authHeader) {
+      throw new UnauthorizedException("authorization header not found")
+    }
+
+    if (!authHeader.startsWith("Bearer ")) {
+      throw new UnauthorizedException(
+        "token should be in format 'Bearer {token}'",
+      )
+    }
+
+    const token = authHeader.split(" ")[1]
+    if (!token) {
+      throw new UnauthorizedException("token not found")
+    }
+
+    return true
+  }
+
+  decodeToken(req: Request): string {
+    const token = req.headers["authorization"].split(" ")[1]
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string }
+
+    if (!decoded) {
+      throw new UnauthorizedException("unauthorized access")
+    }
+
+    return decoded.id
+  }
 }
