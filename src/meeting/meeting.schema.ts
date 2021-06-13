@@ -30,6 +30,9 @@ export class Meeting {
 
   @Prop({ required: true, max: 24 })
   slotsCount: number
+
+  @Prop({ required: true, maxlength: 6, minlength: 6 })
+  link: string
 }
 
 export const MeetingSchema = SchemaFactory.createForClass(Meeting)

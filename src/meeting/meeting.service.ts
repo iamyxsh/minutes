@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common"
+import { Injectable, UnauthorizedException } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Model } from "mongoose"
 import { CreateMeetingDto } from "./meeting.dto"
@@ -12,9 +12,34 @@ export class MeetingService {
     private meetingUtils: MeetingUtils,
   ) {}
 
-  createMeeting(id: string, body: CreateMeetingDto) {
+  async createMeeting(id: any, body: CreateMeetingDto) {
     this.meetingUtils.checkTime(body)
+
     const { slots, slotsCount } = this.meetingUtils.createSlots(body)
-    return this.Meeting.create({ ...body, user: id, slots, slotsCount })
+    const link = await this.meetingUtils.generateLink()
+
+    const meetings = await this.Meeting.find({ user: id })
+
+    this.meetingUtils.checkDuplicateTime(body, meetings)
+
+    return this.Meeting.create({ ...body, user: id, slots, slotsCount, link })
+  }
+
+  getMeetingsOfLoggedUser(id: any) {
+    return this.Meeting.find({ user: id })
+  }
+
+  getMeetingByLink(link: string) {
+    return this.Meeting.findOne({ link }).populate("user", "-password")
+  }
+
+  async deleteMeetingByLink(meetingId: string, userId: string) {
+    const meeting = (await this.Meeting.findById(meetingId)) as any
+
+    if (meeting.user.id === userId) {
+      throw new UnauthorizedException("unauthorized access")
+    }
+
+    return this.Meeting.findByIdAndDelete({ id: meetingId })
   }
 }
